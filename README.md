@@ -9,5 +9,6 @@
 
 ## 20/10/24
 - Updated the code to now automate GPU allocation, and now supports having multiple GPUs.
-- Still haven't tested the code, so again, unsure if it'll actually work.
 - No need to manually load the model to GPUs anymore, it is automated by `load_check_and_dispatch`.
+- Still haven't tested the code, so again, unsure if it'll actually work.
+
