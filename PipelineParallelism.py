@@ -4,10 +4,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from torch import distributed as dist
 import deepspeed
 
-# Initialize the distributed process group
+# Initialize the distributed process group with GPU-optimised backend
 dist.init_process_group(backend='nccl', init_method='env://')
 
 # Check rank and world size for logging and partitioning, will be fetched from env file
+# I've defaulted it to 0,1 but can be changed depending on how many containers we have
 rank = int(os.getenv('RANK', '0'))
 world_size = int(os.getenv('WORLD_SIZE', '1'))
 
@@ -20,7 +21,7 @@ ds_config = {
     "train_batch_size": 1,
     "train_micro_batch_size_per_gpu": 1,
     "fp16": {
-        "enabled": True
+        "enabled": True # Can be disabled if precision is expected.
     },
     "zero_optimization": {
         "stage": 3,  # ZeRO stage 3 for full model parallelism
@@ -28,9 +29,9 @@ ds_config = {
             "device": "cpu"  # Offload parameters to CPU to save GPU memory
         },
     },
-    "pipeline": {
+    "pipeline": { # Implementation of pipeline parallelism
         "enable": True,
-        "stages": world_size  # Number of stages equal to number of containers
+        "stages": world_size  
     }
 }
 
@@ -44,10 +45,11 @@ model, optimizer, dataloader, engine = deepspeed.initialize(
 input_text = "What is the capital of France?"
 inputs = tokenizer(input_text, return_tensors="pt").input_ids.to(rank)  # Place inputs on correct GPU
 
+# Prevent redundant gradient calculations for optimised execution
 with torch.no_grad():
     outputs = model.generate(inputs)
 
-# Decode and print the output on rank 0 to avoid multiple/repeated outputs.
+# Decode and print the output on rank 0 to avoid multiple/repeated outputs
 if rank == 0:
     output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     print(f"Output from rank {rank}: {output_text}")
