@@ -10,3 +10,8 @@
 - No need to manually load the model to GPUs anymore, it is automated by `load_check_and_dispatch` from accelerate library.
 - Still haven't tested the code, so again, unsure if it'll actually work.
 
+## 31/10/24
+- Added Docker containers, values for which can be fetched from a .env file.
+- Used the DeepSpeed package to implement pipeline parallelism.
+- Added more optimizations such as fp16 and ZeRO based optimization.
+- Requires testing to check if it actually works.
