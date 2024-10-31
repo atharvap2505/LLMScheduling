@@ -8,7 +8,7 @@ import deepspeed
 dist.init_process_group(backend='nccl', init_method='env://')
 
 # Check rank and world size for logging and partitioning, will be fetched from env file
-# I've defaulted it to 0,1 but can be changed depending on how many containers we have
+# I've defaulted it to 0 and 1, but can be changed depending on how many containers we have
 rank = int(os.getenv('RANK', '0'))
 world_size = int(os.getenv('WORLD_SIZE', '1'))
 
