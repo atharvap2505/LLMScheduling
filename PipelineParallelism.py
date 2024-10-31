@@ -7,15 +7,12 @@ import deepspeed
 # Initialize the distributed process group
 dist.init_process_group(backend='nccl', init_method='env://')
 
-# Check rank and world size for logging and partitioning
+# Check rank and world size for logging and partitioning, will be fetched from env file
 rank = int(os.getenv('RANK', '0'))
 world_size = int(os.getenv('WORLD_SIZE', '1'))
 
-# Define the model name and tokenizer
 model_name = "nvidia/Llama-3.1-Nemotron-70B-Instruct-HF"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-# Load model with deepspeed for pipeline parallelism across containers
 model = AutoModelForCausalLM.from_pretrained(model_name)
 
 # DeepSpeed configuration for ZeRO optimization and pipeline parallelism
@@ -44,15 +41,13 @@ model, optimizer, dataloader, engine = deepspeed.initialize(
     model_parameters=None
 )
 
-# Define the input text and tokenize it
 input_text = "What is the capital of France?"
 inputs = tokenizer(input_text, return_tensors="pt").input_ids.to(rank)  # Place inputs on correct GPU
 
-# Perform inference with no_grad
 with torch.no_grad():
     outputs = model.generate(inputs)
 
-# Decode and print the output on rank 0
+# Decode and print the output on rank 0 to avoid multiple/repeated outputs.
 if rank == 0:
     output_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
     print(f"Output from rank {rank}: {output_text}")
