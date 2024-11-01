@@ -1,4 +1,4 @@
-# Issues:
+# Timeline:
 
 ## 18/10/24
 - Unable to test the model at all, I've tried running it but either it takes forever, or my data limit on BITS Wi-Fi gets exhausted, probably due to the huge model size for 70B parameters.
