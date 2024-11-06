@@ -3,7 +3,9 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from torch import distributed as dist
 import deepspeed
+from dotenv import load_dotenv
 
+load_dotenv()
 # Initialize the distributed process group with GPU-optimised backend
 dist.init_process_group(backend='nccl', init_method='env://')
 
